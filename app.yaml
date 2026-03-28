@@ -1,0 +1,14 @@
+runtime: nodejs20
+
+handlers:
+  # Serve all static files with their specific extensions
+  - url: /(.*\.(js|css|png|jpg|svg|webp|ico))$
+    static_files: dist/\1
+    upload: dist/(.*\.(js|css|png|jpg|svg|webp|ico))$
+    secure: always
+
+  # Catch all other routes and serve index.html (for React Router/SPA support)
+  - url: /.*
+    static_files: dist/index.html
+    upload: dist/index.html
+    secure: always

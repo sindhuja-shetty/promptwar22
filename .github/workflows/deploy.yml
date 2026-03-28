@@ -1,0 +1,45 @@
+name: Deploy Bridge AI to Google App Engine
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Production Assets
+        run: npm run build
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: Deploy to App Engine
+        id: deploy
+        uses: google-github-actions/deploy-appengine@v2
+        with:
+          project_id: '${{ secrets.GCP_PROJECT_ID }}'
+          deliverables: app.yaml
+          version: 'v1'
+          promote: true
+
+      - name: Output Deployment URL
+        run: echo "Deployed directly to ${{ steps.deploy.outputs.url }}"
